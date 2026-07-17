@@ -4,6 +4,7 @@ dist/
 !action/dist/index.js
 action/dist/*.map
 release/
+action/build/
 coverage/
 *.tsbuildinfo
 .cache/

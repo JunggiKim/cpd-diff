@@ -78,6 +78,27 @@ describe("installEngine", () => {
     expect(await readFile(first, "utf8")).toContain("echo engine");
   });
 
+  test("returns an absolute executable path when the cache path is relative", async () => {
+    const archive = await readFile(path.join(root, "engine.tar.gz"));
+    server = createServer((_request, response) => response.end(archive));
+    await new Promise<void>((resolve) => server?.listen(0, "127.0.0.1", resolve));
+    const address = server.address();
+    if (address === null || typeof address === "string") throw new Error("Test server did not bind");
+    const origin = `http://127.0.0.1:${address.port}`;
+    const relativeCache = path.relative(process.cwd(), path.join(root, "relative-cache"));
+    const executable = await installEngine({
+      archiveFormat: "tar.gz",
+      artifactName: "engine.tar.gz",
+      cacheDirectory: relativeCache,
+      executableRelativePath: "engine",
+      sha256: createHash("sha256").update(archive).digest("hex"),
+      trustedOrigins: new Set([origin]),
+      url: new URL("/engine.tar.gz", origin),
+      version: "1.0.0",
+    });
+    expect(path.isAbsolute(executable)).toBe(true);
+  });
+
   test("rejects symbolic links contained in an archive", async () => {
     await symlink("engine", path.join(root, "archive", "engine-link"));
     execFileSync("tar", [

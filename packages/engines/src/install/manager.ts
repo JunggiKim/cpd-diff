@@ -16,6 +16,7 @@ export async function resolveEngine(
 }
 
 export async function installEngine(specification: EngineInstallSpecification): Promise<string> {
+  specification = { ...specification, cacheDirectory: path.resolve(specification.cacheDirectory) };
   validateArchiveEntries([specification.executableRelativePath]);
   const installDirectory = path.join(
     specification.cacheDirectory,
