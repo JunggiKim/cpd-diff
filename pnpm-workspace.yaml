@@ -1,0 +1,8 @@
+packages:
+  - packages/*
+  - action
+
+allowBuilds:
+  esbuild: true
+
+strictDepBuilds: true
