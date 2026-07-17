@@ -1,0 +1,11 @@
+packages:
+  - packages/*
+  - action
+
+allowBuilds:
+  esbuild: true
+
+minimumReleaseAgeExclude:
+  - fast-xml-parser@5.10.1
+
+strictDepBuilds: true

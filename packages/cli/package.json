@@ -1,0 +1,26 @@
+{
+  "name": "cpd-diff",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "cpd-diff": "./dist/bin.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -b --pretty false",
+    "test": "vitest run",
+    "typecheck": "tsc -b --pretty false"
+  },
+  "dependencies": {
+    "@cpd-diff/core": "workspace:*",
+    "@cpd-diff/engines": "workspace:*",
+    "@cpd-diff/reporters": "workspace:*",
+    "commander": "15.0.0"
+  }
+}

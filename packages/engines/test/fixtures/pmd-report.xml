@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pmd-cpd xmlns="https://pmd-code.org/schema/cpd-report"
+         pmdVersion="7.26.0"
+         version="1.0.0">
+   <duplication lines="7" tokens="27">
+      <file endline="8" line="2" path="src/A.java"/>
+      <file endline="18" line="12" path="src/B.java"/>
+      <file endline="28" line="22" path="src/C.java"/>
+      <codefragment><![CDATA[    int alpha(int input) {
+        return input + 1;
+    }
+]]></codefragment>
+   </duplication>
+</pmd-cpd>

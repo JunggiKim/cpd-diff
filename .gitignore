@@ -1,0 +1,14 @@
+node_modules/
+dist/
+!action/dist/
+!action/dist/index.js
+!action/dist/package.json
+action/dist/*.map
+release/
+action/build/
+coverage/
+*.tsbuildinfo
+.cache/
+.DS_Store
+temp-doc/
+.claude/
