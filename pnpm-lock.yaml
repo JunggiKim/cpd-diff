@@ -30,6 +30,12 @@ importers:
         specifier: 4.0.5
         version: 4.0.5
 
+  packages/engines:
+    dependencies:
+      '@cpd-diff/core':
+        specifier: workspace:*
+        version: link:../core
+
 packages:
 
   '@babel/helper-string-parser@7.29.7':
