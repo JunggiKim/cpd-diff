@@ -1,6 +1,6 @@
 {
   "name": "cpd-diff-workspace",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@11.13.1",
@@ -11,6 +11,9 @@
     "build": "pnpm -r build",
     "bundle:action": "pnpm --filter @cpd-diff/action bundle",
     "bundle:cli": "esbuild packages/cli/src/bin.ts --bundle --platform=node --target=node24 --format=esm --outfile=release/cpd-diff.js --minify --sourcemap",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "oxlint --deny-warnings --ignore-pattern action/dist/** --ignore-pattern temp-doc/** .",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc -b --pretty false"
@@ -22,6 +25,8 @@
     "@vitest/coverage-v8": "4.1.10",
     "ajv": "8.20.0",
     "esbuild": "0.28.1",
+    "oxlint": "1.74.0",
+    "prettier": "3.9.0",
     "typescript": "7.0.2",
     "vitest": "4.1.10"
   }

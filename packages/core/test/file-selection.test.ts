@@ -1,6 +1,9 @@
 import { describe, expect, test } from "vitest";
 
-import { selectFiles, splitChangedBaseline } from "../src/files/select-files.js";
+import {
+  selectFiles,
+  splitChangedBaseline,
+} from "../src/files/select-files.js";
 
 describe("selectFiles", () => {
   test("applies include, exclude, extension, and binary filters once", () => {
@@ -53,11 +56,14 @@ describe("selectFiles", () => {
 describe("splitChangedBaseline", () => {
   test("splits selected files without allowing unselected changed paths", () => {
     expect(
-      splitChangedBaseline(["src/a.ts", "src/b.ts", "src/c.ts"], [
-        { path: "src/c.ts", status: "M" },
-        { path: "ignored.md", status: "A" },
-        { path: "src/a.ts", status: "R", previousPath: "old/a.ts" },
-      ]),
+      splitChangedBaseline(
+        ["src/a.ts", "src/b.ts", "src/c.ts"],
+        [
+          { path: "src/c.ts", status: "M" },
+          { path: "ignored.md", status: "A" },
+          { path: "src/a.ts", status: "R", previousPath: "old/a.ts" },
+        ],
+      ),
     ).toEqual({
       baseline: ["src/b.ts"],
       changed: ["src/a.ts", "src/c.ts"],

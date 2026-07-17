@@ -24,7 +24,9 @@ export function selectFiles(
   const include = compilePatterns(options.include);
   const exclude = compilePatterns(options.exclude);
   const extensions = new Set(options.extensions.map(normalizeExtension));
-  const binaryPaths = new Set([...options.binaryPaths].map(normalizeRepositoryPath));
+  const binaryPaths = new Set(
+    [...options.binaryPaths].map(normalizeRepositoryPath),
+  );
 
   return [...new Set(trackedPaths.map(normalizeRepositoryPath))]
     .filter((file) => extensions.has(path.posix.extname(file)))
@@ -37,13 +39,21 @@ export function splitChangedBaseline(
   changedFiles: readonly ChangedFile[],
 ): ChangedBaselineSplit {
   const selected = new Set(selectedPaths.map(normalizeRepositoryPath));
-  const changedCandidates = new Set(changedFiles.map(({ path: file }) => normalizeRepositoryPath(file)));
-  const changed = [...selected].filter((file) => changedCandidates.has(file)).sort(comparePaths);
-  const baseline = [...selected].filter((file) => !changedCandidates.has(file)).sort(comparePaths);
+  const changedCandidates = new Set(
+    changedFiles.map(({ path: file }) => normalizeRepositoryPath(file)),
+  );
+  const changed = [...selected]
+    .filter((file) => changedCandidates.has(file))
+    .sort(comparePaths);
+  const baseline = [...selected]
+    .filter((file) => !changedCandidates.has(file))
+    .sort(comparePaths);
   return { baseline, changed };
 }
 
-function compilePatterns(patterns: readonly string[]): (file: string) => boolean {
+function compilePatterns(
+  patterns: readonly string[],
+): (file: string) => boolean {
   if (patterns.length === 0) return () => false;
   try {
     return picomatch([...patterns], { dot: true, nonegate: true });
@@ -60,5 +70,7 @@ function normalizeExtension(extension: string): string {
 }
 
 function comparePaths(left: string, right: string): number {
-  return left < right ? -1 : left > right ? 1 : 0;
+  if (left < right) return -1;
+  if (left > right) return 1;
+  return 0;
 }

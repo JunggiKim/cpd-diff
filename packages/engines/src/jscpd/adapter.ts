@@ -1,10 +1,21 @@
 import { randomUUID } from "node:crypto";
-import { copyFile, lstat, mkdir, readFile, rm, stat, unlink } from "node:fs/promises";
+import {
+  copyFile,
+  lstat,
+  mkdir,
+  readFile,
+  rm,
+  stat,
+  unlink,
+} from "node:fs/promises";
 import path from "node:path";
 
 import type { CloneGroup } from "@cpd-diff/core";
 
-import { type CommonAdapterOptions, validateCommonOptions } from "../adapter-options.js";
+import {
+  type CommonAdapterOptions,
+  validateCommonOptions,
+} from "../adapter-options.js";
 import { runProcess } from "../process/run.js";
 import { parseJscpdReport } from "./report.js";
 
@@ -16,7 +27,9 @@ export type JscpdAdapterOptions = CommonAdapterOptions &
 
 const MAXIMUM_REPORT_BYTES = 256 * 1024 * 1024;
 
-export async function detectWithJscpd(options: JscpdAdapterOptions): Promise<CloneGroup[]> {
+export async function detectWithJscpd(
+  options: JscpdAdapterOptions,
+): Promise<CloneGroup[]> {
   const files = validateCommonOptions(options);
   if (!Number.isSafeInteger(options.minimumLines) || options.minimumLines < 1) {
     throw new Error("Minimum lines must be a positive integer");
@@ -26,7 +39,10 @@ export async function detectWithJscpd(options: JscpdAdapterOptions): Promise<Clo
   await mkdir(options.outputDirectory, { recursive: true, mode: 0o700 });
   const reportFile = path.join(options.outputDirectory, "jscpd-report.json");
   await removeStaleReport(reportFile);
-  const stagingDirectory = path.join(options.outputDirectory, `input-${randomUUID()}`);
+  const stagingDirectory = path.join(
+    options.outputDirectory,
+    `input-${randomUUID()}`,
+  );
   await stageFiles(files, options.repositoryRoot, stagingDirectory);
   try {
     await runProcess({
@@ -36,7 +52,10 @@ export async function detectWithJscpd(options: JscpdAdapterOptions): Promise<Clo
       maximumOutputBytes: 1024 * 1024,
       timeoutMilliseconds: options.timeoutMilliseconds,
     });
-    return parseJscpdReport(await readBoundedReport(reportFile), options.repositoryRoot);
+    return parseJscpdReport(
+      await readBoundedReport(reportFile),
+      options.repositoryRoot,
+    );
   } finally {
     await rm(stagingDirectory, { recursive: true, force: true });
   }
@@ -92,6 +111,7 @@ async function removeStaleReport(reportFile: string): Promise<void> {
   try {
     await unlink(reportFile);
   } catch (cause) {
-    if (!(cause instanceof Error && "code" in cause && cause.code === "ENOENT")) throw cause;
+    if (!(cause instanceof Error && "code" in cause && cause.code === "ENOENT"))
+      throw cause;
   }
 }

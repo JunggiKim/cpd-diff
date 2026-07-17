@@ -11,7 +11,9 @@ export function filterChangedLineGroups(
     group.occurrences.some((occurrence) => {
       const ranges = rangesByFile.get(occurrence.file) ?? [];
       return ranges.some(
-        (range) => occurrence.startLine <= range.endLine && range.startLine <= occurrence.endLine,
+        (range) =>
+          occurrence.startLine <= range.endLine &&
+          range.startLine <= occurrence.endLine,
       );
     }),
   );
@@ -27,13 +29,22 @@ function normalizeChangedLines(
       const existing = normalized.get(file) ?? [];
       for (const range of ranges) {
         if (!isValidRange(range)) throw invalidChangedLines();
-        existing.push(Object.freeze({ startLine: range.startLine, endLine: range.endLine }));
+        existing.push(
+          Object.freeze({ startLine: range.startLine, endLine: range.endLine }),
+        );
       }
-      existing.sort((left, right) => left.startLine - right.startLine || left.endLine - right.endLine);
+      existing.sort(
+        (left, right) =>
+          left.startLine - right.startLine || left.endLine - right.endLine,
+      );
       normalized.set(file, existing);
     }
   } catch (cause) {
-    if (cause instanceof Error && cause.message === "Invalid changed line ranges") throw cause;
+    if (
+      cause instanceof Error &&
+      cause.message === "Invalid changed line ranges"
+    )
+      throw cause;
     throw new Error("Invalid changed line ranges", { cause });
   }
   return normalized;

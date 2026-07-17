@@ -23,27 +23,64 @@ export type CliOptions = Readonly<{
 
 export async function parseOptions(
   argv: readonly string[],
-  output: Readonly<{ writeOut: (text: string) => void; writeErr: (text: string) => void }>,
+  output: Readonly<{
+    writeOut: (text: string) => void;
+    writeErr: (text: string) => void;
+  }>,
 ): Promise<CliOptions> {
   const command = new Command()
     .name("cpd-diff")
-    .description("Fail only on code duplication introduced by the current change")
+    .description(
+      "Fail only on code duplication introduced by the current change",
+    )
     .configureOutput(output)
     .exitOverride()
     .allowUnknownOption(false)
     .option("--base <ref>", "base Git commit", "origin/main")
     .option("--head <ref>", "head Git commit", "HEAD")
-    .addOption(new Option("--engine <engine>").choices(["jscpd", "pmd"]).makeOptionMandatory())
+    .addOption(
+      new Option("--engine <engine>")
+        .choices(["jscpd", "pmd"])
+        .makeOptionMandatory(),
+    )
     .option("--engine-path <path>", "engine executable path")
     .requiredOption("--language <language>", "engine language")
-    .option("--minimum-tokens <count>", "minimum clone tokens", positiveInteger, 100)
-    .option("--minimum-lines <count>", "minimum clone lines for jscpd", positiveInteger, 5)
-    .addOption(new Option("--mode <mode>").choices(["changed-files", "changed-lines"]).default("changed-files"))
-    .addOption(new Option("--format <format>").choices(["console", "json", "sarif"]).default("console"))
+    .option(
+      "--minimum-tokens <count>",
+      "minimum clone tokens",
+      positiveInteger,
+      100,
+    )
+    .option(
+      "--minimum-lines <count>",
+      "minimum clone lines for jscpd",
+      positiveInteger,
+      5,
+    )
+    .addOption(
+      new Option("--mode <mode>")
+        .choices(["changed-files", "changed-lines"])
+        .default("changed-files"),
+    )
+    .addOption(
+      new Option("--format <format>")
+        .choices(["console", "json", "sarif"])
+        .default("console"),
+    )
     .option("--include <glob>", "include glob; repeatable", collect, [])
     .option("--exclude <glob>", "exclude glob; repeatable", collect, [])
-    .option("--extension <extension>", "language extension; repeatable", collect, [])
-    .option("--timeout <milliseconds>", "engine timeout", positiveInteger, 120_000)
+    .option(
+      "--extension <extension>",
+      "language extension; repeatable",
+      collect,
+      [],
+    )
+    .option(
+      "--timeout <milliseconds>",
+      "engine timeout",
+      positiveInteger,
+      120_000,
+    )
     .option("--warn-only", "report violations without exit 1", false);
   await command.parseAsync([...argv], { from: "user" });
   const raw = command.opts();
@@ -68,7 +105,8 @@ export async function parseOptions(
 
 function positiveInteger(value: string): number {
   const parsed = Number(value);
-  if (!Number.isSafeInteger(parsed) || parsed < 1) throw new InvalidArgumentError("must be a positive integer");
+  if (!Number.isSafeInteger(parsed) || parsed < 1)
+    throw new InvalidArgumentError("must be a positive integer");
   return parsed;
 }
 

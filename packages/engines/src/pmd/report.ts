@@ -13,15 +13,21 @@ const parser = new XMLParser({
   trimValues: false,
 });
 
-export function parsePmdReport(report: string, repositoryRoot: string): CloneGroup[] {
+export function parsePmdReport(
+  report: string,
+  repositoryRoot: string,
+): CloneGroup[] {
   try {
     if (/<!DOCTYPE|<!ENTITY/iu.test(report)) throw invalidPmdReport();
     const parsed = requireObject(parser.parse(report) as unknown);
     const root = requireObject(parsed["pmd-cpd"]);
     const duplications = asArray(root.duplication);
-    return duplications.map((duplication) => parseDuplication(duplication, repositoryRoot));
+    return duplications.map((duplication) =>
+      parseDuplication(duplication, repositoryRoot),
+    );
   } catch (cause) {
-    if (cause instanceof Error && cause.message === "Invalid PMD report") throw cause;
+    if (cause instanceof Error && cause.message === "Invalid PMD report")
+      throw cause;
     throw new Error("Invalid PMD report", { cause });
   }
 }
@@ -51,7 +57,8 @@ function asArray(value: unknown): unknown[] {
 }
 
 function requireObject(value: unknown): XmlRecord {
-  if (typeof value !== "object" || value === null || Array.isArray(value)) throw invalidPmdReport();
+  if (typeof value !== "object" || value === null || Array.isArray(value))
+    throw invalidPmdReport();
   return value as XmlRecord;
 }
 

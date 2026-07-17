@@ -20,22 +20,33 @@ describe("filterChangedLineGroups", () => {
     ["before", [{ endLine: 9, startLine: 1 }], false],
     ["after", [{ endLine: 20, startLine: 15 }], false],
   ])("handles %s overlap", (_description, ranges, expected) => {
-    expect(filterChangedLineGroups([group], new Map([["changed.ts", ranges]]))).toEqual(
-      expected ? [group] : [],
-    );
+    expect(
+      filterChangedLineGroups([group], new Map([["changed.ts", ranges]])),
+    ).toEqual(expected ? [group] : []);
   });
 
   test("drops a changed file occurrence when none of its lines changed", () => {
     expect(
-      filterChangedLineGroups([group], new Map([["changed.ts", [{ startLine: 1, endLine: 2 }]]])),
+      filterChangedLineGroups(
+        [group],
+        new Map([["changed.ts", [{ startLine: 1, endLine: 2 }]]]),
+      ),
     ).toEqual([]);
   });
 
   test.each([
-    ["unsafe path", new Map([["../changed.ts", [{ startLine: 1, endLine: 1 }]]])],
+    [
+      "unsafe path",
+      new Map([["../changed.ts", [{ startLine: 1, endLine: 1 }]]]),
+    ],
     ["zero line", new Map([["changed.ts", [{ startLine: 0, endLine: 1 }]]])],
-    ["reversed range", new Map([["changed.ts", [{ startLine: 2, endLine: 1 }]]])],
+    [
+      "reversed range",
+      new Map([["changed.ts", [{ startLine: 2, endLine: 1 }]]]),
+    ],
   ])("rejects %s", (_description, ranges) => {
-    expect(() => filterChangedLineGroups([], ranges)).toThrow(/invalid changed line ranges/i);
+    expect(() => filterChangedLineGroups([], ranges)).toThrow(
+      /invalid changed line ranges/i,
+    );
   });
 });

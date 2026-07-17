@@ -27,11 +27,58 @@ describe("createCloneGroup", () => {
   });
 
   test.each([
-    ["fewer than two occurrences", { lines: 1, occurrences: [{ endLine: 1, file: "a.ts", startLine: 1 }], tokens: 1 }],
-    ["zero tokens", { lines: 1, occurrences: [{ endLine: 1, file: "a.ts", startLine: 1 }, { endLine: 1, file: "b.ts", startLine: 1 }], tokens: 0 }],
-    ["invalid range", { lines: 1, occurrences: [{ endLine: 1, file: "a.ts", startLine: 2 }, { endLine: 1, file: "b.ts", startLine: 1 }], tokens: 1 }],
-    ["unsafe file", { lines: 1, occurrences: [{ endLine: 1, file: "../a.ts", startLine: 1 }, { endLine: 1, file: "b.ts", startLine: 1 }], tokens: 1 }],
+    [
+      "fewer than two occurrences",
+      {
+        lines: 1,
+        occurrences: [{ endLine: 1, file: "a.ts", startLine: 1 }],
+        tokens: 1,
+      },
+    ],
+    [
+      "zero tokens",
+      {
+        lines: 1,
+        occurrences: [
+          { endLine: 1, file: "a.ts", startLine: 1 },
+          { endLine: 1, file: "b.ts", startLine: 1 },
+        ],
+        tokens: 0,
+      },
+    ],
+    [
+      "invalid range",
+      {
+        lines: 1,
+        occurrences: [
+          { endLine: 1, file: "a.ts", startLine: 2 },
+          { endLine: 1, file: "b.ts", startLine: 1 },
+        ],
+        tokens: 1,
+      },
+    ],
+    [
+      "unsafe file",
+      {
+        lines: 1,
+        occurrences: [
+          { endLine: 1, file: "../a.ts", startLine: 1 },
+          { endLine: 1, file: "b.ts", startLine: 1 },
+        ],
+        tokens: 1,
+      },
+    ],
   ])("rejects %s", (_description, input) => {
     expect(() => createCloneGroup(input)).toThrow(/invalid clone group/i);
+  });
+
+  test("rejects a malformed occurrence with a domain error", () => {
+    expect(() =>
+      createCloneGroup({
+        lines: 5,
+        occurrences: [null, { file: "safe.ts", startLine: 1, endLine: 5 }],
+        tokens: 20,
+      } as unknown as Parameters<typeof createCloneGroup>[0]),
+    ).toThrow("Invalid clone group");
   });
 });

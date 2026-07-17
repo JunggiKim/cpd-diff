@@ -1,5 +1,12 @@
 import { createHash, randomUUID } from "node:crypto";
-import { lstat, mkdir, readFile, rename, unlink, writeFile } from "node:fs/promises";
+import {
+  lstat,
+  mkdir,
+  readFile,
+  rename,
+  unlink,
+  writeFile,
+} from "node:fs/promises";
 import path from "node:path";
 
 export type ArtifactSpecification = Readonly<{
@@ -20,8 +27,12 @@ export async function downloadVerifiedArtifact(
   validateSpecification(specification);
   await mkdir(specification.cacheDirectory, { recursive: true, mode: 0o700 });
 
-  const destination = path.join(specification.cacheDirectory, specification.artifactName);
-  if (await isVerifiedRegularFile(destination, specification.sha256)) return destination;
+  const destination = path.join(
+    specification.cacheDirectory,
+    specification.artifactName,
+  );
+  if (await isVerifiedRegularFile(destination, specification.sha256))
+    return destination;
   await removeExistingPath(destination);
 
   const artifact = await download(specification);
@@ -34,7 +45,8 @@ function validateSpecification(specification: ArtifactSpecification): void {
   if (!ARTIFACT_NAME_PATTERN.test(specification.artifactName)) {
     throw new Error("Invalid artifact name");
   }
-  if (!SHA256_PATTERN.test(specification.sha256)) throw new Error("Invalid SHA-256 checksum");
+  if (!SHA256_PATTERN.test(specification.sha256))
+    throw new Error("Invalid SHA-256 checksum");
   if (specification.url.username !== "" || specification.url.password !== "") {
     throw new Error("Artifact URL credentials are forbidden");
   }
@@ -43,7 +55,10 @@ function validateSpecification(specification: ArtifactSpecification): void {
   }
 }
 
-async function isVerifiedRegularFile(file: string, expectedChecksum: string): Promise<boolean> {
+async function isVerifiedRegularFile(
+  file: string,
+  expectedChecksum: string,
+): Promise<boolean> {
   try {
     const status = await lstat(file);
     if (!status.isFile() || status.isSymbolicLink()) return false;
@@ -62,15 +77,23 @@ async function removeExistingPath(file: string): Promise<void> {
   }
 }
 
-async function download(specification: ArtifactSpecification): Promise<Uint8Array> {
+async function download(
+  specification: ArtifactSpecification,
+): Promise<Uint8Array> {
   const response = await fetch(specification.url, { redirect: "follow" });
-  if (!response.ok) throw new Error(`Artifact download failed with HTTP ${response.status}`);
+  if (!response.ok)
+    throw new Error(`Artifact download failed with HTTP ${response.status}`);
   if (!specification.trustedOrigins.has(new URL(response.url).origin)) {
-    throw new Error(`Untrusted artifact redirect origin: ${new URL(response.url).origin}`);
+    throw new Error(
+      `Untrusted artifact redirect origin: ${new URL(response.url).origin}`,
+    );
   }
 
   const declaredLength = Number(response.headers.get("content-length"));
-  if (Number.isFinite(declaredLength) && declaredLength > MAXIMUM_ARTIFACT_BYTES) {
+  if (
+    Number.isFinite(declaredLength) &&
+    declaredLength > MAXIMUM_ARTIFACT_BYTES
+  ) {
     throw new Error("Artifact exceeds maximum download size");
   }
   const artifact = new Uint8Array(await response.arrayBuffer());
@@ -81,24 +104,32 @@ async function download(specification: ArtifactSpecification): Promise<Uint8Arra
 }
 
 function verifyChecksum(artifact: Uint8Array, expected: string): void {
-  if (checksum(artifact) !== expected) throw new Error("Artifact checksum mismatch");
+  if (checksum(artifact) !== expected)
+    throw new Error("Artifact checksum mismatch");
 }
 
 function checksum(artifact: Uint8Array): string {
   return createHash("sha256").update(artifact).digest("hex");
 }
 
-async function writeAtomically(destination: string, artifact: Uint8Array): Promise<void> {
+async function writeAtomically(
+  destination: string,
+  artifact: Uint8Array,
+): Promise<void> {
   const temporary = `${destination}.partial-${process.pid}-${randomUUID()}`;
   try {
     await writeFile(temporary, artifact, { flag: "wx", mode: 0o600 });
     await rename(temporary, destination);
   } finally {
-    try {
-      await unlink(temporary);
-    } catch (cause) {
-      if (!isFileNotFound(cause)) throw cause;
-    }
+    await removePartialDownload(temporary);
+  }
+}
+
+async function removePartialDownload(file: string): Promise<void> {
+  try {
+    await unlink(file);
+  } catch {
+    // Best-effort cleanup must not replace the download or rename error.
   }
 }
 

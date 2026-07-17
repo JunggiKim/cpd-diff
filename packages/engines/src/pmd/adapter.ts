@@ -10,7 +10,9 @@ import { parsePmdReport } from "./report.js";
 
 export type PmdAdapterOptions = CommonAdapterOptions;
 
-export async function detectWithPmd(options: PmdAdapterOptions): Promise<CloneGroup[]> {
+export async function detectWithPmd(
+  options: PmdAdapterOptions,
+): Promise<CloneGroup[]> {
   const files = validateCommonOptions(options);
   if (files.length < 2) return [];
 
@@ -24,7 +26,10 @@ export async function detectWithPmd(options: PmdAdapterOptions): Promise<CloneGr
   return parsePmdReport(stdout, options.repositoryRoot);
 }
 
-function buildArguments(options: PmdAdapterOptions, files: readonly string[]): string[] {
+function buildArguments(
+  options: PmdAdapterOptions,
+  files: readonly string[],
+): string[] {
   return [
     "cpd",
     "--minimum-tokens",

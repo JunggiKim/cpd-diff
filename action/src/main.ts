@@ -7,7 +7,12 @@ import { analyze, type CliOptions } from "cpd-diff";
 import { resolveEngine } from "@cpd-diff/engines";
 import { renderJson, renderSarif } from "@cpd-diff/reporters";
 
-import { assertSafeEvent, parseList, resolveBase, type GitHubEvent } from "./config.js";
+import {
+  assertSafeEvent,
+  parseList,
+  resolveBase,
+  type GitHubEvent,
+} from "./config.js";
 
 export async function run(): Promise<void> {
   assertSafeEvent(process.env.GITHUB_EVENT_NAME ?? "");
@@ -15,8 +20,13 @@ export async function run(): Promise<void> {
   const event = await readEvent(process.env.GITHUB_EVENT_PATH);
   const engine = choice("engine", ["jscpd", "pmd"] as const);
   const mode = choice("mode", ["changed-files", "changed-lines"] as const);
-  const cacheRoot = process.env.RUNNER_TOOL_CACHE ?? path.join(repositoryRoot, ".cpd-diff", "tools");
-  const enginePath = await resolveEngine(engine, path.join(cacheRoot, "cpd-diff", engine));
+  const cacheRoot =
+    process.env.RUNNER_TOOL_CACHE ??
+    path.join(repositoryRoot, ".cpd-diff", "tools");
+  const enginePath = await resolveEngine(
+    engine,
+    path.join(cacheRoot, "cpd-diff", engine),
+  );
   const options: CliOptions = {
     base: resolveBase(core.getInput("base"), event),
     engine,
@@ -40,7 +50,9 @@ export async function run(): Promise<void> {
   await mkdir(reportDirectory, { recursive: true });
   await core.summary
     .addHeading("cpd-diff")
-    .addRaw(`${report.summary.violationCount} new duplication violation(s) detected.`)
+    .addRaw(
+      `${report.summary.violationCount} new duplication violation(s) detected.`,
+    )
     .write();
   await Promise.all([
     writeFile(jsonPath, renderJson(report), { encoding: "utf8", flag: "w" }),
@@ -50,7 +62,9 @@ export async function run(): Promise<void> {
   core.setOutput("json-path", jsonPath);
   core.setOutput("sarif-path", sarifPath);
   if (report.summary.violationCount > 0 && !options.warnOnly) {
-    core.setFailed(`${report.summary.violationCount} new duplication violation(s) detected`);
+    core.setFailed(
+      `${report.summary.violationCount} new duplication violation(s) detected`,
+    );
   }
 }
 
@@ -67,16 +81,23 @@ function positiveInteger(name: string, fallback: number): number {
   const raw = core.getInput(name);
   if (raw.length === 0) return fallback;
   const parsed = Number(raw);
-  if (!Number.isSafeInteger(parsed) || parsed < 1) throw new Error(`${name} must be a positive integer`);
+  if (!Number.isSafeInteger(parsed) || parsed < 1)
+    throw new Error(`${name} must be a positive integer`);
   return parsed;
 }
 
-function choice<const T extends readonly string[]>(name: string, choices: T): T[number] {
+function choice<const T extends readonly string[]>(
+  name: string,
+  choices: T,
+): T[number] {
   const value = required(name);
-  if (!choices.includes(value)) throw new Error(`${name} must be one of: ${choices.join(", ")}`);
+  if (!choices.includes(value))
+    throw new Error(`${name} must be one of: ${choices.join(", ")}`);
   return value as T[number];
 }
 
 if (process.env.NODE_ENV !== "test") {
-  run().catch((cause: unknown) => core.setFailed(cause instanceof Error ? cause.message : String(cause)));
+  run().catch((cause: unknown) =>
+    core.setFailed(cause instanceof Error ? cause.message : String(cause)),
+  );
 }

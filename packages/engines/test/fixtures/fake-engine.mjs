@@ -18,7 +18,10 @@ if (args[0] === "cpd") {
 const outputIndex = args.indexOf("--output");
 if (outputIndex < 0 || args[outputIndex + 1] === undefined) process.exit(2);
 const output = args[outputIndex + 1];
-const files = readdirSync(process.cwd(), { recursive: true, withFileTypes: true })
+const files = readdirSync(process.cwd(), {
+  recursive: true,
+  withFileTypes: true,
+})
   .filter((entry) => entry.isFile())
   .map((entry) => path.join(entry.parentPath, entry.name))
   .map((file) => path.relative(process.cwd(), file).split(path.sep).join("/"))
@@ -33,8 +36,8 @@ writeFileSync(
         firstFile: { start: 1, end: 2, name: files[0] },
         secondFile: { start: 3, end: 4, name: files[1] },
         lines: 2,
-        tokens: 10
-      }
-    ]
-  })
+        tokens: 10,
+      },
+    ],
+  }),
 );

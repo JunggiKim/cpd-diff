@@ -1,0 +1,5 @@
+action/dist/
+coverage/
+release/
+temp-doc/
+pnpm-lock.yaml

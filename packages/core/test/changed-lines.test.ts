@@ -33,16 +33,19 @@ describe("parseUnifiedZeroContext", () => {
 
   test("returns no ranges for empty and binary diffs", () => {
     expect(parseUnifiedZeroContext("")).toEqual([]);
-    expect(parseUnifiedZeroContext("Binary files a/image.png and b/image.png differ\n")).toEqual([]);
+    expect(
+      parseUnifiedZeroContext(
+        "Binary files a/image.png and b/image.png differ\n",
+      ),
+    ).toEqual([]);
   });
 
-  test.each([
-    "@@ malformed @@",
-    "@@ -1 +0 @@",
-    "@@ -1 +2,-1 @@",
-  ])("rejects malformed hunk headers: %s", (header) => {
-    expect(() => parseUnifiedZeroContext(`${header}\n`)).toThrow(
-      /invalid git unified diff output/i,
-    );
-  });
+  test.each(["@@ malformed @@", "@@ -1 +0 @@", "@@ -1 +2,-1 @@"])(
+    "rejects malformed hunk headers: %s",
+    (header) => {
+      expect(() => parseUnifiedZeroContext(`${header}\n`)).toThrow(
+        /invalid git unified diff output/i,
+      );
+    },
+  );
 });

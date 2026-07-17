@@ -7,7 +7,9 @@ export function renderConsole(report: ReportDocument): string {
     "",
   ];
   report.violations.forEach((violation, index) => {
-    lines.push(`${index + 1}. ${violation.lines} lines, ${violation.tokens} tokens`);
+    lines.push(
+      `${index + 1}. ${violation.lines} lines, ${violation.tokens} tokens`,
+    );
     lines.push(...violation.occurrences.map(renderOccurrence));
     lines.push("");
   });

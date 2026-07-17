@@ -1,6 +1,10 @@
 import type { Log, Location, Result } from "sarif";
 
-import type { ReportDocument, ReportOccurrence, ReportViolation } from "./document.js";
+import type {
+  ReportDocument,
+  ReportOccurrence,
+  ReportViolation,
+} from "./document.js";
 
 const RULE_ID = "cpd-diff/new-duplication";
 
@@ -18,7 +22,9 @@ export function createSarif(report: ReportDocument): Log {
             rules: [
               {
                 id: RULE_ID,
-                shortDescription: { text: "New code duplication introduced by this change" },
+                shortDescription: {
+                  text: "New code duplication introduced by this change",
+                },
                 helpUri: "https://github.com/JunggiKim/cpd-diff#how-it-works",
                 defaultConfiguration: { level: "error" },
               },
@@ -37,7 +43,8 @@ export function renderSarif(report: ReportDocument): string {
 
 function createResult(violation: ReportViolation): Result {
   const [primary, ...related] = violation.occurrences;
-  if (primary === undefined) throw new Error("SARIF violation has no occurrence");
+  if (primary === undefined)
+    throw new Error("SARIF violation has no occurrence");
   return {
     ruleId: RULE_ID,
     level: "error",

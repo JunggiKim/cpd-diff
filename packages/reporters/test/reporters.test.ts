@@ -40,7 +40,10 @@ describe("createReportDocument", () => {
           type: "object",
           additionalProperties: false,
           required: ["name", "version"],
-          properties: { name: { const: "cpd-diff" }, version: { type: "string" } },
+          properties: {
+            name: { const: "cpd-diff" },
+            version: { type: "string" },
+          },
         },
         analysis: {
           type: "object",
@@ -102,7 +105,8 @@ describe("createReportDocument", () => {
   });
 
   test("renders a concise readable console report", () => {
-    expect(renderConsole(report)).toBe(`cpd-diff: 1 new duplication group (changed-lines, jscpd)
+    expect(renderConsole(report))
+      .toBe(`cpd-diff: 1 new duplication group (changed-lines, jscpd)
 
 1. 5 lines, 20 tokens
    src/a.ts:1-5 [changed]

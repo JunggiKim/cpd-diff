@@ -1,6 +1,10 @@
 import { createHash } from "node:crypto";
 
-import { createCloneGroup, type CloneGroup, type CloneOccurrence } from "./clone-group.js";
+import {
+  createCloneGroup,
+  type CloneGroup,
+  type CloneOccurrence,
+} from "./clone-group.js";
 
 export type FingerprintedCloneGroup = Readonly<{
   fingerprint: string;
@@ -21,13 +25,17 @@ export function mergeCloneGroups(
   const merged = new Map<string, CloneGroup>();
 
   for (const entry of entries) {
-    if (!FINGERPRINT_PATTERN.test(entry.fingerprint)) throw new Error("Invalid fingerprint");
+    if (!FINGERPRINT_PATTERN.test(entry.fingerprint))
+      throw new Error("Invalid fingerprint");
     const existing = merged.get(entry.fingerprint);
     if (existing === undefined) {
       merged.set(entry.fingerprint, entry.group);
       continue;
     }
-    if (existing.lines !== entry.group.lines || existing.tokens !== entry.group.tokens) {
+    if (
+      existing.lines !== entry.group.lines ||
+      existing.tokens !== entry.group.tokens
+    ) {
       throw new Error("Inconsistent clone metrics for fingerprint");
     }
     merged.set(entry.fingerprint, mergeOccurrences(existing, entry.group));
@@ -54,7 +62,10 @@ function occurrenceKey(occurrence: CloneOccurrence): string {
   return `${occurrence.file}\0${occurrence.startLine}\0${occurrence.endLine}`;
 }
 
-function compareOccurrences(left: CloneOccurrence, right: CloneOccurrence): number {
+function compareOccurrences(
+  left: CloneOccurrence,
+  right: CloneOccurrence,
+): number {
   return (
     compareText(left.file, right.file) ||
     left.startLine - right.startLine ||

@@ -6,19 +6,31 @@ import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { detectWithJscpd } from "../src/jscpd/adapter.js";
 import { detectWithPmd } from "../src/pmd/adapter.js";
 
-const executable = new URL("./fixtures/fake-engine.mjs", import.meta.url).pathname;
+const executable = new URL("./fixtures/fake-engine.mjs", import.meta.url)
+  .pathname;
 
 describe("engine adapters", () => {
   let outputDirectory: string;
   let sourceDirectory: string;
 
   beforeEach(async () => {
-    outputDirectory = path.join(process.cwd(), "temp-doc", "etc", "adapter-test");
+    outputDirectory = path.join(
+      process.cwd(),
+      "temp-doc",
+      "etc",
+      "adapter-test",
+    );
     sourceDirectory = path.join("temp-doc", "etc", "adapter-source");
     await mkdir(outputDirectory, { recursive: true });
     await mkdir(path.join(sourceDirectory, "src"), { recursive: true });
-    await writeFile(path.join(sourceDirectory, "src", "a.ts"), "const a = 1;\n");
-    await writeFile(path.join(sourceDirectory, "src", "b.ts"), "const b = 2;\n");
+    await writeFile(
+      path.join(sourceDirectory, "src", "a.ts"),
+      "const a = 1;\n",
+    );
+    await writeFile(
+      path.join(sourceDirectory, "src", "b.ts"),
+      "const b = 2;\n",
+    );
     await chmod(executable, 0o755);
   });
 

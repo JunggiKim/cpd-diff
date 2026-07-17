@@ -6,7 +6,10 @@ import { parseJscpdReport } from "../src/jscpd/report.js";
 
 describe("parseJscpdReport", () => {
   test("normalizes the verified jscpd v5 JSON contract", async () => {
-    const report = await readFile(new URL("./fixtures/jscpd-report.json", import.meta.url), "utf8");
+    const report = await readFile(
+      new URL("./fixtures/jscpd-report.json", import.meta.url),
+      "utf8",
+    );
 
     expect(parseJscpdReport(report, process.cwd())).toEqual([
       {
@@ -26,7 +29,9 @@ describe("parseJscpdReport", () => {
     '{"duplicates":"wrong"}',
     '{"duplicates":[{"lines":1,"tokens":1,"firstFile":{},"secondFile":{}}]}',
   ])("fails closed for malformed output", (report) => {
-    expect(() => parseJscpdReport(report, process.cwd())).toThrow(/invalid jscpd report/i);
+    expect(() => parseJscpdReport(report, process.cwd())).toThrow(
+      /invalid jscpd report/i,
+    );
   });
 
   test("rejects a reported path outside the repository", () => {
@@ -41,6 +46,8 @@ describe("parseJscpdReport", () => {
       ],
     });
 
-    expect(() => parseJscpdReport(report, process.cwd())).toThrow(/invalid jscpd report/i);
+    expect(() => parseJscpdReport(report, process.cwd())).toThrow(
+      /invalid jscpd report/i,
+    );
   });
 });

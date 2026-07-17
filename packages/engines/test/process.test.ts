@@ -7,7 +7,12 @@ import { EngineExecutionError, runProcess } from "../src/process/run.js";
 describe("runProcess", () => {
   test("passes arguments without a shell and captures bounded output", async () => {
     const result = await runProcess({
-      args: ["-e", "process.stdout.write(JSON.stringify(process.argv.slice(1)))", "a b", "$(unsafe)"],
+      args: [
+        "-e",
+        "process.stdout.write(JSON.stringify(process.argv.slice(1)))",
+        "a b",
+        "$(unsafe)",
+      ],
       command: process.execPath,
       cwd: process.cwd(),
       maximumOutputBytes: 1024,
@@ -27,7 +32,10 @@ describe("runProcess", () => {
         maximumOutputBytes: 1024,
         timeoutMilliseconds: 1_000,
       }),
-    ).rejects.toMatchObject<Partial<EngineExecutionError>>({ kind: "nonzero-exit", exitCode: 7 });
+    ).rejects.toMatchObject<Partial<EngineExecutionError>>({
+      kind: "nonzero-exit",
+      exitCode: 7,
+    });
   });
 
   test("terminates a process after the deadline", async () => {
@@ -51,6 +59,8 @@ describe("runProcess", () => {
         maximumOutputBytes: 1024,
         timeoutMilliseconds: 1_000,
       }),
-    ).rejects.toMatchObject<Partial<EngineExecutionError>>({ kind: "output-limit" });
+    ).rejects.toMatchObject<Partial<EngineExecutionError>>({
+      kind: "output-limit",
+    });
   });
 });

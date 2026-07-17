@@ -1,12 +1,22 @@
 import { randomUUID } from "node:crypto";
-import { chmod, lstat, mkdir, readFile, readdir, rename, rm, writeFile } from "node:fs/promises";
+import {
+  chmod,
+  lstat,
+  mkdir,
+  readFile,
+  readdir,
+  rename,
+  rm,
+  writeFile,
+} from "node:fs/promises";
 import path from "node:path";
 
 import { runProcess } from "../process/run.js";
 import { downloadVerifiedArtifact } from "./verified-download.js";
 import { releaseFor, type EngineRelease } from "./releases.js";
 
-export type EngineInstallSpecification = EngineRelease & Readonly<{ cacheDirectory: string }>;
+export type EngineInstallSpecification = EngineRelease &
+  Readonly<{ cacheDirectory: string }>;
 
 export async function resolveEngine(
   engine: "jscpd" | "pmd",
@@ -15,29 +25,52 @@ export async function resolveEngine(
   return await installEngine({ ...releaseFor(engine), cacheDirectory });
 }
 
-export async function installEngine(specification: EngineInstallSpecification): Promise<string> {
-  specification = { ...specification, cacheDirectory: path.resolve(specification.cacheDirectory) };
+export async function installEngine(
+  specification: EngineInstallSpecification,
+): Promise<string> {
+  specification = {
+    ...specification,
+    cacheDirectory: path.resolve(specification.cacheDirectory),
+  };
   validateArchiveEntries([specification.executableRelativePath]);
   const installDirectory = path.join(
     specification.cacheDirectory,
     `${specification.version}-${specification.sha256.slice(0, 16)}`,
   );
-  const executable = path.join(installDirectory, specification.executableRelativePath);
-  if (await isCompleteInstall(installDirectory, executable, specification.sha256)) return executable;
+  const executable = path.join(
+    installDirectory,
+    specification.executableRelativePath,
+  );
+  if (
+    await isCompleteInstall(installDirectory, executable, specification.sha256)
+  )
+    return executable;
 
   const archive = await downloadVerifiedArtifact(specification);
   const temporary = `${installDirectory}.partial-${randomUUID()}`;
   await mkdir(temporary, { recursive: true, mode: 0o700 });
   try {
-    const entries = await listArchive(archive, specification.archiveFormat, specification.cacheDirectory);
+    const entries = await listArchive(
+      archive,
+      specification.archiveFormat,
+      specification.cacheDirectory,
+    );
     validateArchiveEntries(entries);
     await extractArchive(archive, specification.archiveFormat, temporary);
     await verifyExtractedTree(temporary);
-    const extractedExecutable = path.join(temporary, specification.executableRelativePath);
+    const extractedExecutable = path.join(
+      temporary,
+      specification.executableRelativePath,
+    );
     const status = await lstat(extractedExecutable);
-    if (!status.isFile() || status.isSymbolicLink()) throw new Error("Engine executable is not a regular file");
+    if (!status.isFile() || status.isSymbolicLink())
+      throw new Error("Engine executable is not a regular file");
     await chmod(extractedExecutable, 0o755);
-    await writeFile(path.join(temporary, ".complete"), `${specification.sha256}\n`, { mode: 0o600 });
+    await writeFile(
+      path.join(temporary, ".complete"),
+      `${specification.sha256}\n`,
+      { mode: 0o600 },
+    );
     await rm(installDirectory, { recursive: true, force: true });
     await rename(temporary, installDirectory);
     return executable;
@@ -50,8 +83,13 @@ async function verifyExtractedTree(directory: string): Promise<void> {
   for (const entry of await readdir(directory, { withFileTypes: true })) {
     const absolute = path.join(directory, entry.name);
     const status = await lstat(absolute);
-    if (status.isSymbolicLink() || (!status.isDirectory() && !status.isFile())) {
-      throw new Error(`Engine archive contains an unsupported entry: ${entry.name}`);
+    if (
+      status.isSymbolicLink() ||
+      (!status.isDirectory() && !status.isFile())
+    ) {
+      throw new Error(
+        `Engine archive contains an unsupported entry: ${entry.name}`,
+      );
     }
     if (status.isDirectory()) await verifyExtractedTree(absolute);
   }
@@ -98,7 +136,10 @@ async function extractArchive(
   destination: string,
 ): Promise<void> {
   await runProcess({
-    args: format === "tar.gz" ? ["-xzf", archive, "-C", destination] : ["-xf", archive, "-C", destination],
+    args:
+      format === "tar.gz"
+        ? ["-xzf", archive, "-C", destination]
+        : ["-xf", archive, "-C", destination],
     command: "tar",
     cwd: destination,
     maximumOutputBytes: 1024 * 1024,
@@ -116,9 +157,12 @@ async function isCompleteInstall(
       lstat(executable),
       readFile(path.join(installDirectory, ".complete"), "utf8"),
     ]);
-    return status.isFile() && !status.isSymbolicLink() && marker.trim() === checksum;
+    return (
+      status.isFile() && !status.isSymbolicLink() && marker.trim() === checksum
+    );
   } catch (cause) {
-    if (cause instanceof Error && "code" in cause && cause.code === "ENOENT") return false;
+    if (cause instanceof Error && "code" in cause && cause.code === "ENOENT")
+      return false;
     throw cause;
   }
 }

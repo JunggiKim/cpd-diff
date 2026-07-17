@@ -7,6 +7,8 @@ export function filterChangedFileGroups(
 ): CloneGroup[] {
   const changed = new Set([...changedPaths].map(normalizeRepositoryPath));
   return groups.filter((group) =>
-    group.occurrences.some(({ file }) => changed.has(normalizeRepositoryPath(file))),
+    group.occurrences.some(({ file }) =>
+      changed.has(normalizeRepositoryPath(file)),
+    ),
   );
 }

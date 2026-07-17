@@ -6,7 +6,11 @@ export async function unsupportedFiles(
   files: readonly string[],
 ): Promise<Set<string>> {
   const results = await Promise.all(
-    files.map(async (file) => ((await isRegularTextFile(path.join(repositoryRoot, file))) ? undefined : file)),
+    files.map(async (file) =>
+      (await isRegularTextFile(path.join(repositoryRoot, file)))
+        ? undefined
+        : file,
+    ),
   );
   return new Set(results.filter((file): file is string => file !== undefined));
 }

@@ -30,6 +30,8 @@ describe("parseNameStatusZ", () => {
     ["truncated rename", Buffer.from("R100\0old.ts\0")],
     ["missing final NUL", Buffer.from("A\0file.ts")],
   ])("rejects malformed output: %s", (_description, output) => {
-    expect(() => parseNameStatusZ(output)).toThrow(/invalid git name-status output/i);
+    expect(() => parseNameStatusZ(output)).toThrow(
+      /invalid git name-status output/i,
+    );
   });
 });

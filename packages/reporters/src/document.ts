@@ -45,9 +45,12 @@ export type ReportDocumentInput = Readonly<{
 
 const FINGERPRINT_PATTERN = /^[a-f0-9]{64}$/u;
 
-export function createReportDocument(input: ReportDocumentInput): ReportDocument {
+export function createReportDocument(
+  input: ReportDocumentInput,
+): ReportDocument {
   const violations = input.groups.map(({ fingerprint, group }) => {
-    if (!FINGERPRINT_PATTERN.test(fingerprint)) throw new Error("Invalid report fingerprint");
+    if (!FINGERPRINT_PATTERN.test(fingerprint))
+      throw new Error("Invalid report fingerprint");
     return Object.freeze({
       fingerprint,
       lines: group.lines,
@@ -72,7 +75,10 @@ export function createReportDocument(input: ReportDocumentInput): ReportDocument
       mode: input.mode,
     }),
     summary: Object.freeze({
-      occurrenceCount: violations.reduce((total, violation) => total + violation.occurrences.length, 0),
+      occurrenceCount: violations.reduce(
+        (total, violation) => total + violation.occurrences.length,
+        0,
+      ),
       violationCount: violations.length,
     }),
     violations: Object.freeze(violations),

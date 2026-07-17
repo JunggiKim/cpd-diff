@@ -4,7 +4,9 @@ export type GitHubEvent = Readonly<{
 
 export function assertSafeEvent(eventName: string): void {
   if (eventName === "pull_request_target") {
-    throw new Error("cpd-diff does not run in pull_request_target; use pull_request with read-only permissions");
+    throw new Error(
+      "cpd-diff does not run in pull_request_target; use pull_request with read-only permissions",
+    );
   }
 }
 
@@ -16,5 +18,8 @@ export function resolveBase(explicitBase: string, event: GitHubEvent): string {
 }
 
 export function parseList(value: string): string[] {
-  return value.split(/\r?\n/u).map((entry) => entry.trim()).filter(Boolean);
+  return value
+    .split(/\r?\n/u)
+    .map((entry) => entry.trim())
+    .filter(Boolean);
 }

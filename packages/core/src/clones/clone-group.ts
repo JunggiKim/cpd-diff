@@ -21,7 +21,13 @@ export function createCloneGroup(input: CloneGroup): CloneGroup {
   }
 
   const occurrences = input.occurrences.map((occurrence) => {
-    if (!isPositiveInteger(occurrence.startLine) || !isPositiveInteger(occurrence.endLine)) {
+    if (occurrence === null || typeof occurrence !== "object") {
+      throw invalidCloneGroup();
+    }
+    if (
+      !isPositiveInteger(occurrence.startLine) ||
+      !isPositiveInteger(occurrence.endLine)
+    ) {
       throw invalidCloneGroup();
     }
     if (occurrence.endLine < occurrence.startLine) throw invalidCloneGroup();

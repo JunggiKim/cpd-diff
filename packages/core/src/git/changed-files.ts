@@ -16,7 +16,7 @@ export function parseNameStatusZ(output: Uint8Array): ChangedFile[] {
   const fields = decodeFields(output.subarray(0, -1));
   const files: ChangedFile[] = [];
 
-  for (let index = 0; index < fields.length; ) {
+  for (let index = 0; index < fields.length;) {
     const status = parseStatus(fields[index]);
     if (status === "C" || status === "R") {
       const previousPath = requiredPath(fields[index + 1]);
@@ -36,7 +36,13 @@ export function parseNameStatusZ(output: Uint8Array): ChangedFile[] {
 
 function parseStatus(field: string | undefined): RawStatus {
   const status = field?.match(STATUS_PATTERN)?.[1];
-  if (status === "A" || status === "C" || status === "M" || status === "R" || status === "D") {
+  if (
+    status === "A" ||
+    status === "C" ||
+    status === "M" ||
+    status === "R" ||
+    status === "D"
+  ) {
     return status;
   }
   throw invalidNameStatus();

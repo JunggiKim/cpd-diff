@@ -1,6 +1,10 @@
 export { downloadVerifiedArtifact } from "./install/verified-download.js";
 export type { ArtifactSpecification } from "./install/verified-download.js";
-export { installEngine, resolveEngine, validateArchiveEntries } from "./install/manager.js";
+export {
+  installEngine,
+  resolveEngine,
+  validateArchiveEntries,
+} from "./install/manager.js";
 export type { EngineInstallSpecification } from "./install/manager.js";
 export { ENGINE_RELEASES, releaseFor } from "./install/releases.js";
 export type { ArchiveFormat, EngineRelease } from "./install/releases.js";

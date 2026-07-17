@@ -11,9 +11,15 @@ export type CliIo = Readonly<{
   stdout: (text: string) => void;
 }>;
 
-export async function runCli(argv: readonly string[], io: CliIo): Promise<number> {
+export async function runCli(
+  argv: readonly string[],
+  io: CliIo,
+): Promise<number> {
   try {
-    const options = await parseOptions(argv, { writeOut: io.stdout, writeErr: () => undefined });
+    const options = await parseOptions(argv, {
+      writeOut: io.stdout,
+      writeErr: () => undefined,
+    });
     const report = await analyze(options, io.cwd);
     io.stdout(render(report, options.format));
     return report.summary.violationCount > 0 && !options.warnOnly ? 1 : 0;
@@ -29,7 +35,10 @@ export async function runCli(argv: readonly string[], io: CliIo): Promise<number
   }
 }
 
-function render(report: Awaited<ReturnType<typeof analyze>>, format: "console" | "json" | "sarif"): string {
+function render(
+  report: Awaited<ReturnType<typeof analyze>>,
+  format: "console" | "json" | "sarif",
+): string {
   if (format === "json") return renderJson(report);
   if (format === "sarif") return renderSarif(report);
   return renderConsole(report);

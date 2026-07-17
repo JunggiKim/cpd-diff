@@ -38,7 +38,10 @@ describe("createSarif", () => {
       locations: [
         {
           physicalLocation: {
-            artifactLocation: { uri: "src/a%20file.ts", uriBaseId: "%SRCROOT%" },
+            artifactLocation: {
+              uri: "src/a%20file.ts",
+              uriBaseId: "%SRCROOT%",
+            },
             region: { startLine: 2, endLine: 4 },
           },
         },

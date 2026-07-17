@@ -6,7 +6,10 @@ import { parsePmdReport } from "../src/pmd/report.js";
 
 describe("parsePmdReport", () => {
   test("normalizes the verified PMD 7 XML contract with all occurrences", async () => {
-    const report = await readFile(new URL("./fixtures/pmd-report.xml", import.meta.url), "utf8");
+    const report = await readFile(
+      new URL("./fixtures/pmd-report.xml", import.meta.url),
+      "utf8",
+    );
 
     expect(parsePmdReport(report, process.cwd())).toEqual([
       {
@@ -22,7 +25,12 @@ describe("parsePmdReport", () => {
   });
 
   test("accepts a valid empty report", () => {
-    expect(parsePmdReport('<pmd-cpd xmlns="https://pmd-code.org/schema/cpd-report"/>', process.cwd())).toEqual([]);
+    expect(
+      parsePmdReport(
+        '<pmd-cpd xmlns="https://pmd-code.org/schema/cpd-report"/>',
+        process.cwd(),
+      ),
+    ).toEqual([]);
   });
 
   test.each([
@@ -31,6 +39,8 @@ describe("parsePmdReport", () => {
     '<!DOCTYPE foo [<!ENTITY xxe SYSTEM "file:///etc/passwd">]><pmd-cpd/>',
     '<pmd-cpd><duplication lines="0" tokens="1"><file line="1" endline="1" path="a.ts"/><file line="1" endline="1" path="b.ts"/></duplication></pmd-cpd>',
   ])("fails closed for malformed or unsafe XML", (report) => {
-    expect(() => parsePmdReport(report, process.cwd())).toThrow(/invalid pmd report/i);
+    expect(() => parsePmdReport(report, process.cwd())).toThrow(
+      /invalid pmd report/i,
+    );
   });
 });

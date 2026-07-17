@@ -1,7 +1,10 @@
 import { describe, expect, test } from "vitest";
 
 import { createCloneGroup } from "../src/clones/clone-group.js";
-import { fingerprintFragment, mergeCloneGroups } from "../src/clones/fingerprint.js";
+import {
+  fingerprintFragment,
+  mergeCloneGroups,
+} from "../src/clones/fingerprint.js";
 
 describe("fingerprintFragment", () => {
   test("normalizes whitespace and line endings deterministically", () => {
@@ -10,7 +13,9 @@ describe("fingerprintFragment", () => {
     );
 
     expect(new Set(fingerprints)).toHaveLength(1);
-    expect(fingerprints[0]).toBe(fingerprintFragment("const value = 1;\nreturn value;"));
+    expect(fingerprints[0]).toBe(
+      fingerprintFragment("const value = 1;\nreturn value;"),
+    );
     expect(fingerprints[0]).toMatch(/^[a-f0-9]{64}$/u);
   });
 
@@ -21,7 +26,9 @@ describe("fingerprintFragment", () => {
   });
 
   test("rejects an empty normalized fragment", () => {
-    expect(() => fingerprintFragment(" \r\n\t ")).toThrow(/empty clone fragment/i);
+    expect(() => fingerprintFragment(" \r\n\t ")).toThrow(
+      /empty clone fragment/i,
+    );
   });
 });
 
@@ -76,7 +83,9 @@ describe("mergeCloneGroups", () => {
     });
     const different = createCloneGroup({ ...group, tokens: 2 });
 
-    expect(() => mergeCloneGroups([{ fingerprint: "bad", group }])).toThrow(/invalid fingerprint/i);
+    expect(() => mergeCloneGroups([{ fingerprint: "bad", group }])).toThrow(
+      /invalid fingerprint/i,
+    );
     expect(() =>
       mergeCloneGroups([
         { fingerprint: "a".repeat(64), group },

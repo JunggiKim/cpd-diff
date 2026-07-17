@@ -17,7 +17,13 @@ describe("downloadVerifiedArtifact", () => {
   let server: Server;
 
   beforeEach(async () => {
-    cacheDirectory = path.join(process.cwd(), "temp-doc", "etc", "installer-test", randomUUID());
+    cacheDirectory = path.join(
+      process.cwd(),
+      "temp-doc",
+      "etc",
+      "installer-test",
+      randomUUID(),
+    );
     await mkdir(cacheDirectory, { recursive: true });
     requests = 0;
     server = createServer((_request, response) => {
@@ -25,15 +31,20 @@ describe("downloadVerifiedArtifact", () => {
       response.writeHead(200, { "content-type": "application/octet-stream" });
       response.end(artifact);
     });
-    await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
+    await new Promise<void>((resolve) =>
+      server.listen(0, "127.0.0.1", resolve),
+    );
     const address = server.address();
-    if (address === null || typeof address === "string") throw new Error("Test server did not bind");
+    if (address === null || typeof address === "string")
+      throw new Error("Test server did not bind");
     origin = `http://127.0.0.1:${address.port}`;
   });
 
   afterEach(async () => {
     await new Promise<void>((resolve, reject) =>
-      server.close((error) => (error === undefined ? resolve() : reject(error))),
+      server.close((error) =>
+        error === undefined ? resolve() : reject(error),
+      ),
     );
     await rm(cacheDirectory, { recursive: true, force: true });
   });

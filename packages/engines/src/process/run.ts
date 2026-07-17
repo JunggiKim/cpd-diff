@@ -1,18 +1,19 @@
 import { spawn } from "node:child_process";
 
 export type EngineExecutionErrorKind =
-  | "invalid-output"
-  | "nonzero-exit"
-  | "output-limit"
-  | "spawn"
-  | "timeout";
+  "invalid-output" | "nonzero-exit" | "output-limit" | "spawn" | "timeout";
 
 export class EngineExecutionError extends Error {
   readonly exitCode: number | null;
   readonly kind: EngineExecutionErrorKind;
   readonly stderr: string;
 
-  constructor(kind: EngineExecutionErrorKind, message: string, exitCode: number | null, stderr = "") {
+  constructor(
+    kind: EngineExecutionErrorKind,
+    message: string,
+    exitCode: number | null,
+    stderr = "",
+  ) {
     super(message);
     this.name = "EngineExecutionError";
     this.kind = kind;
@@ -34,7 +35,9 @@ export type ProcessResult = Readonly<{
   stdout: string;
 }>;
 
-export async function runProcess(request: ProcessRequest): Promise<ProcessResult> {
+export async function runProcess(
+  request: ProcessRequest,
+): Promise<ProcessResult> {
   validateRequest(request);
   return await new Promise<ProcessResult>((resolve, reject) => {
     const child = spawn(request.command, [...request.args], {
@@ -56,7 +59,13 @@ export async function runProcess(request: ProcessRequest): Promise<ProcessResult
     const collect = (target: Buffer[]) => (chunk: Buffer) => {
       outputBytes += chunk.byteLength;
       if (outputBytes > request.maximumOutputBytes) {
-        terminate(new EngineExecutionError("output-limit", "Engine output limit exceeded", null));
+        terminate(
+          new EngineExecutionError(
+            "output-limit",
+            "Engine output limit exceeded",
+            null,
+          ),
+        );
         return;
       }
       target.push(chunk);
@@ -65,14 +74,27 @@ export async function runProcess(request: ProcessRequest): Promise<ProcessResult
     child.stdout.on("data", collect(stdout));
     child.stderr.on("data", collect(stderr));
     const timeout = setTimeout(
-      () => terminate(new EngineExecutionError("timeout", "Engine execution timed out", null)),
+      () =>
+        terminate(
+          new EngineExecutionError(
+            "timeout",
+            "Engine execution timed out",
+            null,
+          ),
+        ),
       request.timeoutMilliseconds,
     );
     timeout.unref();
 
     child.once("error", (cause) => {
       clearTimeout(timeout);
-      reject(new EngineExecutionError("spawn", `Engine process could not start: ${cause.message}`, null));
+      reject(
+        new EngineExecutionError(
+          "spawn",
+          `Engine process could not start: ${cause.message}`,
+          null,
+        ),
+      );
     });
     child.once("close", (exitCode) => {
       clearTimeout(timeout);
@@ -95,22 +117,37 @@ export async function runProcess(request: ProcessRequest): Promise<ProcessResult
         }
         resolve(result);
       } catch {
-        reject(new EngineExecutionError("invalid-output", "Engine output is not valid UTF-8", exitCode));
+        reject(
+          new EngineExecutionError(
+            "invalid-output",
+            "Engine output is not valid UTF-8",
+            exitCode,
+          ),
+        );
       }
     });
   });
 }
 
 function validateRequest(request: ProcessRequest): void {
-  if (request.command.length === 0) throw new Error("Engine command is required");
-  if (!Number.isSafeInteger(request.timeoutMilliseconds) || request.timeoutMilliseconds < 1) {
+  if (request.command.length === 0)
+    throw new Error("Engine command is required");
+  if (
+    !Number.isSafeInteger(request.timeoutMilliseconds) ||
+    request.timeoutMilliseconds < 1
+  ) {
     throw new Error("Engine timeout must be a positive integer");
   }
-  if (!Number.isSafeInteger(request.maximumOutputBytes) || request.maximumOutputBytes < 1) {
+  if (
+    !Number.isSafeInteger(request.maximumOutputBytes) ||
+    request.maximumOutputBytes < 1
+  ) {
     throw new Error("Engine output limit must be a positive integer");
   }
 }
 
 function decode(chunks: readonly Buffer[]): string {
-  return new TextDecoder("utf-8", { fatal: true }).decode(Buffer.concat(chunks));
+  return new TextDecoder("utf-8", { fatal: true }).decode(
+    Buffer.concat(chunks),
+  );
 }
