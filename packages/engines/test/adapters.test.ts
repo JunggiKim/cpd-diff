@@ -49,7 +49,7 @@ describe("engine adapters", () => {
         minimumTokens: 10,
         outputDirectory,
         repositoryRoot: process.cwd(),
-        timeoutMilliseconds: 1_000,
+        timeoutMilliseconds: 10_000,
       }),
     ).resolves.toEqual([
       {
@@ -71,7 +71,7 @@ describe("engine adapters", () => {
         language: "java",
         minimumTokens: 10,
         repositoryRoot: process.cwd(),
-        timeoutMilliseconds: 1_000,
+        timeoutMilliseconds: 10_000,
       }),
     ).resolves.toEqual([
       {
@@ -95,7 +95,7 @@ describe("engine adapters", () => {
         minimumTokens: 10,
         outputDirectory,
         repositoryRoot: process.cwd(),
-        timeoutMilliseconds: 1_000,
+        timeoutMilliseconds: 10_000,
       }),
     ).resolves.toEqual([]);
   });

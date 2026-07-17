@@ -20,6 +20,8 @@ export type ArtifactSpecification = Readonly<{
 const SHA256_PATTERN = /^[a-f0-9]{64}$/u;
 const ARTIFACT_NAME_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]*$/u;
 const MAXIMUM_ARTIFACT_BYTES = 512 * 1024 * 1024;
+const MAXIMUM_REDIRECTS = 5;
+const DOWNLOAD_TIMEOUT_MILLISECONDS = 120_000;
 
 export async function downloadVerifiedArtifact(
   specification: ArtifactSpecification,
@@ -80,15 +82,9 @@ async function removeExistingPath(file: string): Promise<void> {
 async function download(
   specification: ArtifactSpecification,
 ): Promise<Uint8Array> {
-  const response = await fetch(specification.url, { redirect: "follow" });
+  const response = await fetchTrusted(specification);
   if (!response.ok)
     throw new Error(`Artifact download failed with HTTP ${response.status}`);
-  if (!specification.trustedOrigins.has(new URL(response.url).origin)) {
-    throw new Error(
-      `Untrusted artifact redirect origin: ${new URL(response.url).origin}`,
-    );
-  }
-
   const declaredLength = Number(response.headers.get("content-length"));
   if (
     Number.isFinite(declaredLength) &&
@@ -96,9 +92,49 @@ async function download(
   ) {
     throw new Error("Artifact exceeds maximum download size");
   }
-  const artifact = new Uint8Array(await response.arrayBuffer());
-  if (artifact.byteLength > MAXIMUM_ARTIFACT_BYTES) {
-    throw new Error("Artifact exceeds maximum download size");
+  return await readBoundedBody(response);
+}
+
+async function fetchTrusted(
+  specification: ArtifactSpecification,
+): Promise<Response> {
+  let url = specification.url;
+  for (let redirects = 0; redirects <= MAXIMUM_REDIRECTS; redirects += 1) {
+    if (!specification.trustedOrigins.has(url.origin)) {
+      throw new Error(`Untrusted artifact redirect origin: ${url.origin}`);
+    }
+    const response = await fetch(url, {
+      redirect: "manual",
+      signal: AbortSignal.timeout(DOWNLOAD_TIMEOUT_MILLISECONDS),
+    });
+    if (![301, 302, 303, 307, 308].includes(response.status)) return response;
+    const location = response.headers.get("location");
+    if (location === null) throw new Error("Artifact redirect has no location");
+    url = new URL(location, url);
+  }
+  throw new Error("Artifact exceeded maximum redirects");
+}
+
+async function readBoundedBody(response: Response): Promise<Uint8Array> {
+  if (response.body === null) throw new Error("Artifact response has no body");
+  const reader = response.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let bytes = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    bytes += value.byteLength;
+    if (bytes > MAXIMUM_ARTIFACT_BYTES) {
+      await reader.cancel();
+      throw new Error("Artifact exceeds maximum download size");
+    }
+    chunks.push(value);
+  }
+  const artifact = new Uint8Array(bytes);
+  let offset = 0;
+  for (const chunk of chunks) {
+    artifact.set(chunk, offset);
+    offset += chunk.byteLength;
   }
   return artifact;
 }

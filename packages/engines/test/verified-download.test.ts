@@ -93,6 +93,28 @@ describe("downloadVerifiedArtifact", () => {
     expect(requests).toBe(0);
   });
 
+  test("rejects an untrusted redirect before contacting its target", async () => {
+    server.removeAllListeners("request");
+    server.on("request", (_request, response) => {
+      requests += 1;
+      response.writeHead(302, {
+        location: origin.replace("127.0.0.1", "localhost"),
+      });
+      response.end();
+    });
+
+    await expect(
+      downloadVerifiedArtifact({
+        artifactName: "engine.tar.gz",
+        cacheDirectory,
+        sha256: checksum,
+        trustedOrigins: new Set([origin]),
+        url: new URL("/redirect", origin),
+      }),
+    ).rejects.toThrow(/untrusted artifact redirect origin/i);
+    expect(requests).toBe(1);
+  });
+
   test("replaces a corrupt regular cache file after verification", async () => {
     await writeFile(path.join(cacheDirectory, "engine.tar.gz"), "corrupt");
 

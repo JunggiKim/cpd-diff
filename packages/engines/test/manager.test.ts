@@ -13,7 +13,7 @@ import path from "node:path";
 
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 
-import { ENGINE_RELEASES } from "../src/install/releases.js";
+import { ENGINE_RELEASES, releaseFor } from "../src/install/releases.js";
 import {
   installEngine,
   validateArchiveEntries,
@@ -40,6 +40,12 @@ describe("engine release manifests", () => {
       "linux-x64",
       "win32-x64",
     ]);
+    expect(releaseFor("pmd", "win32").executableRelativePath).toMatch(
+      /\.bat$/u,
+    );
+    expect(releaseFor("pmd", "linux").executableRelativePath).toBe(
+      "pmd-bin-7.26.0/bin/pmd",
+    );
   });
 });
 

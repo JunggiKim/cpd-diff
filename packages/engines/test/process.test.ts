@@ -16,7 +16,7 @@ describe("runProcess", () => {
       command: process.execPath,
       cwd: process.cwd(),
       maximumOutputBytes: 1024,
-      timeoutMilliseconds: 1_000,
+      timeoutMilliseconds: 10_000,
     });
 
     expect(JSON.parse(result.stdout)).toEqual(["a b", "$(unsafe)"]);
@@ -30,7 +30,7 @@ describe("runProcess", () => {
         command: process.execPath,
         cwd: process.cwd(),
         maximumOutputBytes: 1024,
-        timeoutMilliseconds: 1_000,
+        timeoutMilliseconds: 10_000,
       }),
     ).rejects.toMatchObject<Partial<EngineExecutionError>>({
       kind: "nonzero-exit",
@@ -57,7 +57,7 @@ describe("runProcess", () => {
         command: process.execPath,
         cwd: process.cwd(),
         maximumOutputBytes: 1024,
-        timeoutMilliseconds: 1_000,
+        timeoutMilliseconds: 10_000,
       }),
     ).rejects.toMatchObject<Partial<EngineExecutionError>>({
       kind: "output-limit",

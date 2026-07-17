@@ -60,10 +60,7 @@ export const ENGINE_RELEASES = Object.freeze({
   pmd: Object.freeze({
     archiveFormat: "zip",
     artifactName: "pmd-dist-7.26.0-bin.zip",
-    executableRelativePath:
-      process.platform === "win32"
-        ? "pmd-bin-7.26.0/bin/pmd.bat"
-        : "pmd-bin-7.26.0/bin/pmd",
+    executableRelativePath: "pmd-bin-7.26.0/bin/pmd",
     sha256: "9f55cb7ff0e9f9a66dd2f005eaa370e84c8a4cd971b134aa14a930c4a283ebc9",
     trustedOrigins: trustedGitHubOrigins,
     url: new URL(
@@ -78,7 +75,15 @@ export function releaseFor(
   platform = process.platform,
   architecture = process.arch,
 ): EngineRelease {
-  if (engine === "pmd") return ENGINE_RELEASES.pmd;
+  if (engine === "pmd") {
+    return Object.freeze({
+      ...ENGINE_RELEASES.pmd,
+      executableRelativePath:
+        platform === "win32"
+          ? "pmd-bin-7.26.0/bin/pmd.bat"
+          : "pmd-bin-7.26.0/bin/pmd",
+    });
+  }
   const key =
     `${platform}-${architecture}` as keyof typeof ENGINE_RELEASES.jscpd;
   const release = ENGINE_RELEASES.jscpd[key];

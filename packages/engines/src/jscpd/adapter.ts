@@ -1,13 +1,5 @@
 import { randomUUID } from "node:crypto";
-import {
-  copyFile,
-  lstat,
-  mkdir,
-  readFile,
-  rm,
-  stat,
-  unlink,
-} from "node:fs/promises";
+import { copyFile, lstat, mkdir, readFile, rm, stat } from "node:fs/promises";
 import path from "node:path";
 
 import type { CloneGroup } from "@cpd-diff/core";
@@ -36,17 +28,17 @@ export async function detectWithJscpd(
   }
   if (files.length < 2) return [];
 
-  await mkdir(options.outputDirectory, { recursive: true, mode: 0o700 });
-  const reportFile = path.join(options.outputDirectory, "jscpd-report.json");
-  await removeStaleReport(reportFile);
-  const stagingDirectory = path.join(
+  const invocationDirectory = path.join(
     options.outputDirectory,
-    `input-${randomUUID()}`,
+    `run-${randomUUID()}`,
   );
+  await mkdir(invocationDirectory, { recursive: true, mode: 0o700 });
+  const reportFile = path.join(invocationDirectory, "jscpd-report.json");
+  const stagingDirectory = path.join(invocationDirectory, "input");
   await stageFiles(files, options.repositoryRoot, stagingDirectory);
   try {
     await runProcess({
-      args: buildArguments(options),
+      args: buildArguments(options, invocationDirectory),
       command: options.executable,
       cwd: stagingDirectory,
       maximumOutputBytes: 1024 * 1024,
@@ -57,11 +49,14 @@ export async function detectWithJscpd(
       options.repositoryRoot,
     );
   } finally {
-    await rm(stagingDirectory, { recursive: true, force: true });
+    await rm(invocationDirectory, { recursive: true, force: true });
   }
 }
 
-function buildArguments(options: JscpdAdapterOptions): string[] {
+function buildArguments(
+  options: JscpdAdapterOptions,
+  outputDirectory: string,
+): string[] {
   return [
     "--min-tokens",
     String(options.minimumTokens),
@@ -72,7 +67,7 @@ function buildArguments(options: JscpdAdapterOptions): string[] {
     "--reporters",
     "json",
     "--output",
-    options.outputDirectory,
+    outputDirectory,
     "--silent",
     "--no-tips",
     "--no-colors",
@@ -105,13 +100,4 @@ async function readBoundedReport(reportFile: string): Promise<string> {
     throw new Error("Invalid jscpd report file");
   }
   return await readFile(reportFile, "utf8");
-}
-
-async function removeStaleReport(reportFile: string): Promise<void> {
-  try {
-    await unlink(reportFile);
-  } catch (cause) {
-    if (!(cause instanceof Error && "code" in cause && cause.code === "ENOENT"))
-      throw cause;
-  }
 }
