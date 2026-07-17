@@ -2,7 +2,7 @@
 
 `cpd-diff` blocks only code duplication introduced by a change. Existing duplication remains visible without forcing a repository-wide cleanup before CI can become useful.
 
-It is a clean-room TypeScript wrapper around official `jscpd` and PMD CPD executables. It does not copy either engine's source code and does not require an npm release: use the GitHub Action or download the CLI bundle from GitHub Releases.
+It is a clean-room TypeScript wrapper around official `jscpd` and PMD CPD executables. It does not copy either engine's source code. Use the GitHub Action, install the CLI from npm, or download the CLI bundle from GitHub Releases.
 
 ## GitHub Action
 
@@ -39,6 +39,22 @@ Do not run this Action with `pull_request_target`. The Action rejects that event
 - `changed-lines`: reports a clone only when an occurrence intersects an added or modified line. This is stricter about newly introduced duplication.
 
 Renames and paths containing tabs or newlines are handled through Git's NUL-delimited output. Deleted files, binary files, and symlinks are excluded. `new-clones` history-aware classification is intentionally deferred; the two supported modes have explicit, tested semantics.
+
+## CLI from npm
+
+Node.js 24 or newer is required.
+
+```bash
+npm install --global cpd-diff
+
+cpd-diff \
+  --base origin/main \
+  --head HEAD \
+  --engine jscpd \
+  --engine-path /path/to/jscpd \
+  --language typescript \
+  --mode changed-lines
+```
 
 ## CLI from a release
 

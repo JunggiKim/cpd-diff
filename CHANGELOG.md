@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.1
+
+- Publish the standalone CLI through npm as `cpd-diff`.
+
 ## 1.0.0
 
 - Detect duplication introduced in changed files or changed lines.

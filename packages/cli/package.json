@@ -1,23 +1,50 @@
 {
   "name": "cpd-diff",
-  "version": "1.0.0",
-  "private": true,
+  "version": "1.0.1",
+  "description": "Detect code duplication introduced by a Git change",
+  "license": "Apache-2.0",
   "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "files": [
+    "dist/bin.js"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JunggiKim/cpd-diff.git"
+  },
+  "bugs": {
+    "url": "https://github.com/JunggiKim/cpd-diff/issues"
+  },
+  "homepage": "https://github.com/JunggiKim/cpd-diff#readme",
+  "keywords": [
+    "code-duplication",
+    "cpd",
+    "git",
+    "jscpd",
+    "pmd"
+  ],
   "bin": {
     "cpd-diff": "./dist/bin.js"
   },
   "exports": {
-    ".": {
+    "./internal": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     }
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsc -b --pretty false",
+    "bundle": "esbuild src/bin.ts --bundle --platform=node --target=node24 --format=esm --outfile=dist/bin.js --minify",
+    "prepack": "pnpm run bundle",
     "test": "vitest run",
     "typecheck": "tsc -b --pretty false"
   },
-  "dependencies": {
+  "devDependencies": {
     "@cpd-diff/core": "workspace:*",
     "@cpd-diff/engines": "workspace:*",
     "@cpd-diff/reporters": "workspace:*",

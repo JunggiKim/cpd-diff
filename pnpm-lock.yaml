@@ -55,7 +55,7 @@ importers:
         version: link:../packages/cli
 
   packages/cli:
-    dependencies:
+    devDependencies:
       '@cpd-diff/core':
         specifier: workspace:*
         version: link:../core

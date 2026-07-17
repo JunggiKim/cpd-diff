@@ -3,7 +3,7 @@ import path from "node:path";
 import process from "node:process";
 
 import * as core from "@actions/core";
-import { analyze, type CliOptions } from "cpd-diff";
+import { analyze, type CliOptions } from "cpd-diff/internal";
 import { resolveEngine } from "@cpd-diff/engines";
 import { renderJson, renderSarif } from "@cpd-diff/reporters";
 
