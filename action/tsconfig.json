@@ -1,0 +1,14 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "build",
+    "tsBuildInfoFile": "../node_modules/.cache/action.tsbuildinfo"
+  },
+  "include": ["src/**/*.ts"],
+  "references": [
+    { "path": "../packages/cli" },
+    { "path": "../packages/engines" },
+    { "path": "../packages/reporters" }
+  ]
+}

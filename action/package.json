@@ -1,0 +1,17 @@
+{
+  "name": "@cpd-diff/action",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -b --pretty false",
+    "bundle": "esbuild src/main.ts --bundle --platform=node --target=node24 --format=esm --outfile=dist/index.js --minify",
+    "typecheck": "tsc -b --pretty false"
+  },
+  "dependencies": {
+    "@actions/core": "3.0.1",
+    "@cpd-diff/engines": "workspace:*",
+    "@cpd-diff/reporters": "workspace:*",
+    "cpd-diff": "workspace:*"
+  }
+}

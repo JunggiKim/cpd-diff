@@ -1,0 +1,53 @@
+name: cpd-diff
+description: Fail only on code duplication introduced by a pull request
+author: JunggiKim
+inputs:
+  engine:
+    description: Detection engine, jscpd or pmd
+    required: true
+  language:
+    description: Engine language identifier
+    required: true
+  base:
+    description: Base commit; defaults to the pull request base SHA
+    required: false
+  head:
+    description: Head commit
+    default: HEAD
+  mode:
+    description: changed-files or changed-lines
+    default: changed-files
+  minimum-tokens:
+    description: Minimum duplicated token count
+    default: "100"
+  minimum-lines:
+    description: Minimum duplicated line count for jscpd
+    default: "5"
+  timeout-milliseconds:
+    description: Engine process timeout
+    default: "120000"
+  include:
+    description: Newline-delimited include globs
+    required: false
+  exclude:
+    description: Newline-delimited exclude globs
+    required: false
+  extension:
+    description: Newline-delimited file extensions
+    required: false
+  warn-only:
+    description: Report violations without failing
+    default: "false"
+outputs:
+  violation-count:
+    description: Number of new duplication violations
+  json-path:
+    description: Absolute path to the JSON report
+  sarif-path:
+    description: Absolute path to the SARIF report
+runs:
+  using: node24
+  main: action/dist/index.js
+branding:
+  icon: copy
+  color: blue

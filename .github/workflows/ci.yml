@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Enable pnpm
+        run: corepack enable
+      - name: Install
+        run: corepack pnpm install --frozen-lockfile
+      - name: Test
+        run: corepack pnpm test
+      - name: Typecheck
+        run: corepack pnpm typecheck
+      - name: Build
+        run: corepack pnpm build
+      - name: Verify committed Action bundle
+        run: |
+          corepack pnpm bundle:action
+          git diff --exit-code -- action/dist
+
+  action-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
+        with:
+          distribution: temurin
+          java-version: "21"
+      - name: Run local jscpd Action
+        uses: ./
+        with:
+          base: ${{ github.event.pull_request.base.sha || github.event.before }}
+          engine: jscpd
+          language: typescript
+          warn-only: "true"

@@ -1,5 +1,9 @@
 node_modules/
 dist/
+!action/dist/
+!action/dist/index.js
+action/dist/*.map
+release/
 coverage/
 *.tsbuildinfo
 .cache/

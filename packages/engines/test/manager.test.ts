@@ -1,6 +1,6 @@
 import { createHash, randomUUID } from "node:crypto";
 import { execFileSync } from "node:child_process";
-import { chmod, mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { chmod, mkdir, readFile, rm, symlink, writeFile } from "node:fs/promises";
 import { createServer, type Server } from "node:http";
 import path from "node:path";
 
@@ -76,6 +76,36 @@ describe("installEngine", () => {
     const second = await installEngine(specification);
     expect(first).toBe(second);
     expect(await readFile(first, "utf8")).toContain("echo engine");
+  });
+
+  test("rejects symbolic links contained in an archive", async () => {
+    await symlink("engine", path.join(root, "archive", "engine-link"));
+    execFileSync("tar", [
+      "-czf",
+      path.join(root, "symlink.tar.gz"),
+      "-C",
+      path.join(root, "archive"),
+      "engine",
+      "engine-link",
+    ]);
+    const archive = await readFile(path.join(root, "symlink.tar.gz"));
+    server = createServer((_request, response) => response.end(archive));
+    await new Promise<void>((resolve) => server?.listen(0, "127.0.0.1", resolve));
+    const address = server.address();
+    if (address === null || typeof address === "string") throw new Error("Test server did not bind");
+    const origin = `http://127.0.0.1:${address.port}`;
+    await expect(
+      installEngine({
+        archiveFormat: "tar.gz",
+        artifactName: "symlink.tar.gz",
+        cacheDirectory: path.join(root, "symlink-cache"),
+        executableRelativePath: "engine",
+        sha256: createHash("sha256").update(archive).digest("hex"),
+        trustedOrigins: new Set([origin]),
+        url: new URL("/symlink.tar.gz", origin),
+        version: "1.0.0",
+      }),
+    ).rejects.toThrow(/unsupported entry/i);
   });
 
   test.each(["../escape", "/absolute", "safe/../../escape", "C:\\escape.exe", "safe\\escape"])(

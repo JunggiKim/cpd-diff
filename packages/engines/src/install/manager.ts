@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { chmod, lstat, mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
+import { chmod, lstat, mkdir, readFile, readdir, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 import { runProcess } from "../process/run.js";
@@ -31,6 +31,7 @@ export async function installEngine(specification: EngineInstallSpecification): 
     const entries = await listArchive(archive, specification.archiveFormat, specification.cacheDirectory);
     validateArchiveEntries(entries);
     await extractArchive(archive, specification.archiveFormat, temporary);
+    await verifyExtractedTree(temporary);
     const extractedExecutable = path.join(temporary, specification.executableRelativePath);
     const status = await lstat(extractedExecutable);
     if (!status.isFile() || status.isSymbolicLink()) throw new Error("Engine executable is not a regular file");
@@ -41,6 +42,17 @@ export async function installEngine(specification: EngineInstallSpecification): 
     return executable;
   } finally {
     await rm(temporary, { recursive: true, force: true });
+  }
+}
+
+async function verifyExtractedTree(directory: string): Promise<void> {
+  for (const entry of await readdir(directory, { withFileTypes: true })) {
+    const absolute = path.join(directory, entry.name);
+    const status = await lstat(absolute);
+    if (status.isSymbolicLink() || (!status.isDirectory() && !status.isFile())) {
+      throw new Error(`Engine archive contains an unsupported entry: ${entry.name}`);
+    }
+    if (status.isDirectory()) await verifyExtractedTree(absolute);
   }
 }
 

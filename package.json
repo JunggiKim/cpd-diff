@@ -9,16 +9,19 @@
   },
   "scripts": {
     "build": "pnpm -r build",
+    "bundle:action": "pnpm --filter @cpd-diff/action bundle",
+    "bundle:cli": "esbuild packages/cli/src/bin.ts --bundle --platform=node --target=node24 --format=esm --outfile=release/cpd-diff.js --minify --sourcemap",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc -b --pretty false"
   },
   "devDependencies": {
-    "@vitest/coverage-v8": "4.1.10",
-    "@types/picomatch": "4.0.3",
     "@types/node": "24.13.3",
+    "@types/picomatch": "4.0.3",
     "@types/sarif": "2.1.7",
+    "@vitest/coverage-v8": "4.1.10",
     "ajv": "8.20.0",
+    "esbuild": "0.28.1",
     "typescript": "7.0.2",
     "vitest": "4.1.10"
   }
