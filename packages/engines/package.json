@@ -15,6 +15,7 @@
     "typecheck": "tsc -b --pretty false"
   },
   "dependencies": {
-    "@cpd-diff/core": "workspace:*"
+    "@cpd-diff/core": "workspace:*",
+    "fast-xml-parser": "5.10.1"
   }
 }

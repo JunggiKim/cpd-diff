@@ -1,0 +1,25 @@
+{
+  "duplicates": [
+    {
+      "firstFile": {
+        "end": 6,
+        "endLoc": { "column": 1, "line": 6, "position": 147 },
+        "name": "src/a.ts",
+        "start": 1,
+        "startLoc": { "column": 21, "line": 1, "position": 21 }
+      },
+      "format": "typescript",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 16,
+        "endLoc": { "column": 1, "line": 16, "position": 246 },
+        "name": "src/b.ts",
+        "start": 11,
+        "startLoc": { "column": 20, "line": 11, "position": 120 }
+      },
+      "tokens": 33
+    }
+  ],
+  "statistics": { "total": { "clones": 1 } }
+}
