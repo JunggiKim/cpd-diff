@@ -9,6 +9,9 @@
       "import": "./dist/index.js"
     }
   },
+  "dependencies": {
+    "picomatch": "4.0.5"
+  },
   "scripts": {
     "build": "tsc -b --pretty false",
     "test": "vitest run",
